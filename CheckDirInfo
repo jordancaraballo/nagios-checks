@@ -1,0 +1,39 @@
+## Function to check local dirs size
+## usage: CheckDirInfo "/dir" "1000" "100"
+## Author: Jordan A. Caraballo-Vega
+CheckDirInfo() {
+    # Setup check variables
+    HOSTNAME=`/bin/hostname -s`
+    DIR=$1
+    CRIT=$2
+    WARN=$3
+
+    # Check if dir exists
+    if [ -d "$DIR" ]; then
+        # Check if size of directory is within the treshold
+        # Size should be setup to MB
+        RESULT=`du -sm $DIR | cut -f 1`
+        if [ $RESULT -gt $CRIT ]; then
+            STATUS="2"
+        elif [ $RESULT -gt $WARN ]; then
+            STATUS="1"
+        else
+            STATUS="0"
+        fi
+
+        # Add units to RESULT var
+        RESULT+=" MB"
+
+        # Print directory info
+        for t in files links directories; do
+            RESULT+=", `find . -type ${t:0:1} | wc -l` $t";
+        done
+    else
+        STATUS=2
+        RESULT="$DIR not found!"
+    fi
+
+   ${LOGGER} -t "${LOGGER_TAG}" "CheckDirInfo: ${HOSTNAME} Dir-${DIR} ${STATUS} - ${RESULT}."
+   DATA="${DATA}
+${HOSTNAME} ${RESULT}"
+}
