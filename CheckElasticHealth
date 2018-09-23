@@ -1,0 +1,42 @@
+## Function to check elasticsearch health
+## usage: CheckElasticHealth
+## Requirements: install jq library
+## Author: Jordan A. Caraballo-Vega
+CheckElasticHealth() {
+    HOSTNAME=`/bin/hostname -s`
+    STATUS=0
+
+    RAWCURL=$(curl -s -XGET http://zam-elm1:9200/_cluster/health?pretty=true 2>&1)
+
+    # Send Critical if service is not running
+    if [ -z "$RAWCURL" ]; then
+        STATUS=2
+        RESULT="Curl output not found. Service might not be running."
+    else
+
+        # Below there are multiple instances that could be added to parse
+        # the result from the curl call. Grep is used to simply the development
+        # if someone wants to add more fields to the checks.
+        clust_name=`echo $RAWCURL | jq -r ".cluster_name"`
+        clust_status=`echo $RAWCURL | jq -r ".status"`
+        clust_numnodes=`echo $RAWCURL | jq -r ".number_of_nodes"`
+        clust_primshards=`echo $RAWCURL | jq -r ".active_primary_shards"`
+        clust_shards=`echo $RAWCURL | jq -r ".active_shards"`
+        clust_unassignedshards=`echo $RAWCURL | jq -r ".unassigned_shards"`
+        clust_activeshardsperc=`echo $RAWCURL | jq -r ".active_shards_percent_as_number"`
+
+        # Verify if result is within expected parameters
+        if [ clust_status == "yellow" ]; then
+            STATUS=1
+        elif [ clust_status == "red" ]; then
+            STATUS=2
+        fi
+
+        RESULT="Cluster: ${clust_name}, Status: ${clust_status}, Nodes: ${clust_numnodes}, Shards: ${clust_shards}, Prim. Shards: ${clust_primshards}, Uns. Shards: ${clust_unassignedshards}, Act. Shards: ${clust_activeshardsperc}%."
+    fi
+
+   ${LOGGER} -t "${LOGGER_TAG}" "CheckElasticHealth: ${HOSTNAME} ${STATUS} ${RESULT}"
+   DATA="${DATA}
+${HOSTNAME} CheckElasticHealth ${STATUS} ${RESULT}"
+
+}

@@ -1,0 +1,41 @@
+## Function to check logstash process stats
+## usage: CheckLogstashProcess
+## Requirements: install jq library
+## Author: Jordan A. Caraballo-Vega
+CheckLogstashProcess() {
+    HOSTNAME=`/bin/hostname -s`
+    STATUS=0
+
+    RAWCURL=$(curl -s -XGET http://localhost:9600/_node/stats/process?pretty 2>&1)
+
+    # Send Critical if service is not running
+    if [ -z "$RAWCURL" ]; then
+        STATUS=2
+        RESULT="Curl output not found. Service might not be running."
+    else
+        # Below there are multiple instances that could be added to parse
+        # the result from the curl call. Grep is used to simply the development
+        # if someone wants to add more fields to the checks.
+        open_file_desc=`echo $RAWCURL | jq -r ".process.open_file_descriptors"`
+        peak_file_desc=`echo $RAWCURL | jq -r ".process.peak_open_file_descriptors"`
+        max_file_desc=`echo $RAWCURL | jq -r ".process.max_file_descriptors"`
+        mem=`echo $RAWCURL | jq -r ".process.mem.total_virtual_in_bytes" | cut -c1-2`
+        cpu_percent=`echo $RAWCURL | jq -r ".process.cpu.percent"`
+        cpu_loadav=`echo $RAWCURL | jq -r ".process.cpu.load_average" | tr -d "\n "`
+
+        # Verify if result is within expected parameters
+        if [ $cpu_percent -gt 80 ] | [ $mem -gt 42 ]; then
+            STATUS=2
+        elif [ $cpu_percent -gt 60 ] | [ $mem -gt 38 ]; then
+            STATUS=1
+        fi
+
+        RESULT="CPU: ${cpu_percent}%-cpu, ${mem}G-memory. Load Average: ${cpu_loadav}. File Descriptors: ${open_file_desc}-open, ${peak_file_desc}-peak, ${max_file_desc}-max."
+
+    fi
+
+    ${LOGGER} -t "${LOGGER_TAG}" "CheckLogstashProcess: ${HOSTNAME} ${STATUS} ${RESULT}"
+    DATA="${DATA}
+${HOSTNAME} CheckLogstashProcess ${STATUS} ${RESULT}"
+
+}
