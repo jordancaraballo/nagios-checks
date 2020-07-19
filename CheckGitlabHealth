@@ -1,0 +1,57 @@
+## Function to check GitLab health
+## Requirements: install jq library
+## Usage:
+##     CheckGitlabHealth https://gitlab.com
+##
+## Author: Jordan A. Caraballo-Vega, jordancaraballo
+
+CheckGitlabHealth() {
+    # get hostname information for nagios output
+    HOSTNAME=`/bin/hostname -s`
+    GitlabURL=$1
+
+    # set status to green by default - will be changed if conditions are not met
+    STATUS=0
+
+    # perform initial curl to check if application is running
+    run_curl=$(curl -XGET -k "$GitlabURL")
+
+    # send Critical=2 if service is not running
+    if [ -z "$run_curl" ]; then
+        STATUS=2
+        RESULT="Curl output not found. Service might not be running."
+    else
+        # GitLab provides 3 essential services to monitor its health.
+        # These services are parsed in this section and output is sent
+        # to nagios server. Critical or warnings are based on output.
+
+        # Overall health of service.
+        if [ $(curl -k "$GitlabURL/-/health?all=1" | awk '{print $2}') == "OK" ]; then
+            health_curl="OK"
+        else
+            STATUS=2
+            health_curl="status not OK"
+        fi
+
+        # liveness of service.
+        if [ $(curl -k "$GitlabURL/-/liveness?all=1" | jq -r ".status") == "ok" ]; then
+            live_curl="OK"
+        else
+            STATUS=2
+            live_curl="status not OK"
+        fi
+        
+        # readiness of service, note: readiness check has 8 different checks to validate the status
+        # using the occurence of 8 ok's to validate the healthiness of the service.
+        readiness_curl="$( echo $(curl -k "$GitlabURL/-/readiness?all=1") | sed -e 's/\[{\"status\"\:"//g; s/}\]//g; s/\"//g' )"
+        if [ $(grep -o "ok" <<<"$readiness_curl" | wc -l ) -ne 8 ]; then
+            STATUS=2
+        fi
+
+        RESULT="Health: ${health_curl}, Liveness: ${live_curl}, Readiness: ${readiness_curl}."
+    fi
+
+   ${LOGGER} -t "${LOGGER_TAG}" "CheckGitlabHealth: ${HOSTNAME} ${STATUS} ${RESULT}"
+   DATA="${DATA}
+${HOSTNAME} CheckGitlabHealth ${STATUS} ${RESULT}"
+}
