@@ -1,7 +1,18 @@
-## Function to check logstash events stats
-## usage: CheckLogstashEvents
-## Requirements: install jq library
-## Author: Jordan A. Caraballo-Vega
+#
+# FILENAME:     CheckLogstashEvents
+# AUTHOR:       Jordan A. Caraballo-Vega <jordan.a.caraballo-vega@nasa.gov>
+# DATE:         2018-07-01
+#
+# DESCRIPTION:
+#   Checks logstash events stats
+#
+# NOTE:
+#   This script/function is part of the nagios-client suite.
+#   Requirements: install jq library
+#   Usage:
+#     CheckLogstashEvents
+#
+###############################################################################
 CheckLogstashEvents() {
     HOSTNAME=`/bin/hostname -s`
     STATUS=0
