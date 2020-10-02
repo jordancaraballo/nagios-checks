@@ -1,0 +1,39 @@
+#
+# FILENAME:     CheckPuppetCA
+# AUTHOR:       Jordan A. Caraballo-Vega <jordan.a.caraballo-vega@nasa.gov>
+# DATE:         2020-10-01
+#
+# DESCRIPTION:
+#   Check Puppet certificates awaiting for signature.
+#
+# NOTE:
+#   This script/function is part of the nagios-client suite.
+#   It assumes there is a /var/lib/puppet/state/puppetserver.ca_list
+#   file with the output of a cron job that runs `puppetserver ca list`
+# cron.d/puppet-ca
+# */3 * * * * root /opt/puppetlabs/server/bin/puppetserver ca list > /var/lib/puppet/state/puppetserver.ca_list
+#
+###############################################################################
+#!/bin/bash
+CheckPuppetCA() {
+    HOSTNAME="`/bin/hostname -s`"
+    DOMAIN=".nasa.gov"
+    CRONFILE="/var/lib/puppet/state/puppetserver.ca_list"
+    RESULT="No certificates to list"
+    CALIST=`grep -c "No certificates to list" /var/lib/puppet/state/puppetserver.ca_list`
+    STATUS=0
+
+    if [ ! -f ${CRONFILE} ]; then
+        STATUS=2
+        RESULT="$CRONFILE not found. Might be missing cron job"
+    elif [ $CALIST -eq 0 ]; then
+        # if there are unsigned certs
+        STATUS=2
+        ncerts=`grep -c $DOMAIN /var/lib/puppet/state/puppetserver.ca_list`
+        RESULT="- ${ncerts} certificates awaiting for signature"
+    fi
+
+   ${LOGGER} -t "${LOGGER_TAG}" "CheckPuppetCA: ${HOSTNAME} ${STATUS} ${RESULT}"
+   DATA="${DATA}
+${HOSTNAME} CheckPuppetCA ${STATUS} ${RESULT}"
+}
