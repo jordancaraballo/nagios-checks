@@ -1,6 +1,16 @@
-## Function to check local dirs size
-## usage: CheckDirInfo "/dir" "1000" "100"
-## Author: Jordan A. Caraballo-Vega
+#
+# FILENAME:     CheckDirInfo
+# AUTHOR:       Jordan A. Caraballo-Vega <jordan.a.caraballo-vega@nasa.gov>
+# DATE:         2019-07-01
+#
+# DESCRIPTION:
+#   Checks local dirs size
+#
+# NOTE:
+#   This script/function is part of the nagios-client suite.
+#   usage: CheckDirInfo "/dir" "1000" "100"
+#
+###############################################################################
 CheckDirInfo() {
     # Setup check variables
     HOSTNAME=`/bin/hostname -s`
