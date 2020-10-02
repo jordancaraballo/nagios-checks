@@ -1,10 +1,18 @@
-## Function to check GitLab health
-## Requirements: install jq library
-## Usage:
-##     CheckGitlabHealth https://gitlab.com
-##
-## Author: Jordan A. Caraballo-Vega, jordancaraballo
-
+#
+# FILENAME:     CheckGitlabHealth
+# AUTHOR:       Jordan A. Caraballo-Vega <jordan.a.caraballo-vega@nasa.gov>
+# DATE:         2020-07-01
+#
+# DESCRIPTION:
+#   Checks GitLab health
+#
+# NOTE:
+#   This script/function is part of the nagios-client suite.
+#   Requirements: install jq library
+#   Usage:
+#     CheckGitlabHealth https://gitlab.com
+#
+###############################################################################
 CheckGitlabHealth() {
     # get hostname information for nagios output
     HOSTNAME=`/bin/hostname -s`
