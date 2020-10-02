@@ -1,5 +1,15 @@
-### Function to check and report Scap Baseline Audit Reports
-### Author: Jordan A. Caraballo-Vega
+#
+# FILENAME:     CheckBaseScapStatus
+# AUTHOR:       Jordan A. Caraballo-Vega <jordan.a.caraballo-vega@nasa.gov>
+# DATE:         2017-08-01
+#
+# DESCRIPTION:
+#   Checks and reports Scap Baseline Audit Reports
+#
+# NOTE:
+#   This script/function is part of the nagios-client suite.
+#
+###############################################################################
 CheckBaseScapStatus() {
 	HOSTNAME=`/bin/hostname -s`
 
