@@ -1,7 +1,18 @@
-## Function to check elasticsearch health
-## usage: CheckElasticHealth
-## Requirements: install jq library
-## Author: Jordan A. Caraballo-Vega
+#
+# FILENAME:     CheckElasticHealth
+# AUTHOR:       Jordan A. Caraballo-Vega <jordan.a.caraballo-vega@nasa.gov>
+# DATE:         2018-06-12
+#
+# DESCRIPTION:
+#   Checks elasticsearch health
+#
+# NOTE:
+#   This script/function is part of the nagios-client suite.
+#   Requirements: install jq library
+#   Usage:
+#     CheckElasticHealth
+#
+###############################################################################
 CheckElasticHealth() {
     HOSTNAME=`/bin/hostname -s`
     STATUS=0
