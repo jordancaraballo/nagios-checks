@@ -1,5 +1,15 @@
-### Function to check and report Scap Vulnerabilities Audit Reports
-### Author: Jordan A. Caraballo-Vega
+#
+# FILENAME:     CheckVulnScapStatus
+# AUTHOR:       Jordan A. Caraballo-Vega <jordan.a.caraballo-vega@nasa.gov>
+# DATE:         2017-07-01
+#
+# DESCRIPTION:
+#   Checks and report Scap Vulnerabilities Audit Reports
+#
+# NOTE:
+#   This script/function is part of the nagios-client suite.
+#
+###############################################################################
 CheckVulnScapStatus() {
 	HOSTNAME=`/bin/hostname -s`
 
