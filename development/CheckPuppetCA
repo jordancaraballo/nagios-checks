@@ -17,7 +17,7 @@
 #!/bin/bash
 CheckPuppetCA() {
     HOSTNAME="`/bin/hostname -s`"
-    DOMAIN=".nasa.gov"
+    DOMAIN=".domain.com"
     CRONFILE="/var/lib/puppet/state/puppetserver.ca_list"
     RESULT="No certificates to list"
     CALIST=`grep -c "No certificates to list" /var/lib/puppet/state/puppetserver.ca_list`
